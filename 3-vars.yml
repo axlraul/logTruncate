@@ -7,13 +7,13 @@
    #Apps managed by GII
    IHS: 'true'              #Accepted values: "true/false"
    WAS: 'true'              #Accepted values: "true/false"
-   minLogSize: '1'          #Accepted values: [0,1,..] (value in bytes)
+   minLogSize: '1'          #Accepted values: [0,1,..] (value in Bytes)
 
    #Custom log paths
    logs:                    
      - path:      /var/log/boot.log
        wildcard:  /var/log/boot.log-????????
- 
+
      - path:      /var/log/dmesg
        wildcard:  /var/log/dmesg.old-*
 
