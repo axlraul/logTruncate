@@ -6,7 +6,8 @@
 auxPath="{{ auxPath }}"
 echo $auxPath
 truncated=0
-#compressed=0
+compressed=0
+minLogSize={{ minLogSize }}
 arrayPaths=(
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
@@ -31,10 +32,16 @@ arrayRotatedPaths=(
 {{ item.item.wildcard }}
 {% endif %}
 {% endfor %}
+{% if IHS.matched > 0 %}
 /log/apps/websphere85/appServer/*/SystemError_*00.00*.log
 /log/apps/websphere85/appServer/*/SystemOut_*00.00*.log
 /log/apps/websphere85/appServer/*/native_stderr.log20*
 /log/apps/websphere85/appServer/*/native_stdout.log20*
+{% endif %}
+{% if IHS.matched > 0 %}
+/log/apps/httpserver85/*/*/error_log20*
+/log/apps/httpserver85/*/*/access_log20*
+{% endif %}
 )
 
 #echo ${arrayPaths[@]}
@@ -45,37 +52,45 @@ echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
 for i in "${arrayPaths[@]}" 
 do    
    # do whatever on $i
-   fileSize=$(ls -la $i | awk '{ print $5 }')
-   auxPathSize=$(df $auxPath --output=avail | tail -n +2)
-   fileName=$(basename ${i})
-   directoryName=$(dirname "${i}")
-#   echo $fileName
-#   echo $directoryName
-#   echo $i
-#   echo $fileSize
-#   echo $auxPathSize
-   echo -e "-> Truncando $i, este proceso puede llevar unos minutos..."
-#  cp -p "$i" "$auxPath" 
-## echo "" > "$i" 
+#   fileSize=$(ls -la $i | awk '{ print $5 }')
+   fileSize=$(stat --printf="%s" "$i")  
+   if [ $fileSize -gt $minLogSize ]; then
+     auxPathSize=$(df $auxPath --output=avail | tail -n +2)
+     fileName=$(basename ${i})
+     directoryName=$(dirname "${i}")
+#     echo $fileName
+#     echo $directoryName
+#     echo $i
+     echo $fileSize
+#     echo $auxPathSize
+     echo -e "-> Truncando $i, tamaño $fileSize Bytes. Este proceso puede llevar unos minutos..."
+#    cp -p "$i" "$auxPath" 
+##   echo "" > "$i" 
  
-#   echo -e "\n"
-   echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
-#  gzip -9 "$auxPath$fileName" 
+#     echo -e "\n"
+     echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
+#    gzip -9 "$auxPath$fileName" 
 
-#   mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
-truncated=$((truncated+1))
+#     mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
+     truncated=$((truncated+1))
+   else
+     echo "--> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
+   fi
 done
 echo -e "\n"
-echo -e "Operacion de truncado finalizada correctamente en $truncated archivos"
+echo -e "-> Operacion de truncado finalizada correctamente en $truncated archivos"
 echo -e "Intentando liberar mas espacio..."
 echo -e "\n"
 
-for i in "${arrayPaths[@]}"
+for i in "${arrayRotatedPaths[@]}"
 do
-  echo -e "-> Comprimiendo  $i, este proceso puede llevar unos minutos..."
-# gzip -9 $i
+  if [ "${i##*.}" != "gz" ]; then
+    echo -e "-> Comprimiendo $i, este proceso puede llevar unos minutos..."
+#     gzip -9 $i -d
+    compressed=$((compressed+1)) 
+  fi 
 done
 echo -e "\n"
-echo -e "-> Se ha liberado espacio correctamente"
+echo -e "-> Se ha liberado espacio correctamente comprimiendo $compressed archivos"
 
 

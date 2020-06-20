@@ -8,21 +8,24 @@
 - name: Find IHS log paths with regexp's
   find:
     path: /log/apps
-    pattern: 'SystemError.log'
+    patterns: 'error_log,access_log'
     recurse: yes
-  when: IHS == "yes"
+  when: IHS == "true"
   register: IHS
 
 - name: Find WAS log paths with regexp's
   find:
     path: /log/apps
-    pattern: 'SystemOut.log'
+    pattern: 'SystemOut.log,SystemErr.log'
     recurse: yes
-  when: WAS == "yes"
+  when: WAS == "true"
   register: WAS
 
-#- debug: var=item.path
-#  with_items: "{{ IHS.files }}"
+- debug: var=item
+  with_items: "{{ IHS.files }}"
+
+- debug: var=item
+  with_items: "{{ IHS.matched }}"
 
 - name: Installing logTruncate at {{ installPath }}
   template:
