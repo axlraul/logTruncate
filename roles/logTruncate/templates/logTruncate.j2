@@ -1,9 +1,12 @@
 
 ## CONTENT ADMINISTRATED BY ANSIBLE PLAYBOOK. ALL CHANGES WILL BE LOST
 
+#!/bin/bash
+
+arrayPaths=(
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
-{{ item.item.path }}{{ item.item.wildcard }}
+{{ item.item.path }}
 {% endif %}
 {% endfor %}
 {% for item in IHS.files %}
@@ -16,3 +19,8 @@
 {{ item.path }}
 {% endif %}
 {% endfor %}
+)
+
+echo ${arrayPaths[@]}
+
+

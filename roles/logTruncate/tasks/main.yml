@@ -31,7 +31,7 @@
     dest: '{{ installPath }}'
     group: sys
     owner: root
-    mode: 0644
+    mode: 0655
 ...
 
 
