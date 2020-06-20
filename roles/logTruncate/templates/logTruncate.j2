@@ -1,51 +1,61 @@
 #!/bin/bash
 ## CONTENT ADMINISTRATED BY ANSIBLE PLAYBOOK. ALL CHANGES WILL BE LOST
 
+echo -e "\\n********** logTruncate  **********"
+echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
+{% if customPaths.results is defined or IHS.files is defined or WAS.files is defined %}
 auxPath="{{ auxPath }}"
 truncated=0
 compressed=0
 minLogSize={{ minLogSize }}
 arrayPaths=(
+{% if customPaths.results is defined %}
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
 {{ item.item.path }}
 {% endif %}
 {% endfor %}
+{% endif %}
+{% if IHS.files is defined%}
 {% for item in IHS.files %}
 {% if item.isreg == true %}
 {{ item.path }}
 {% endif %}
 {% endfor %}
+{% endif %}
+{% if WAS.files is defined%}
 {% for item in WAS.files %}
 {% if item.isreg == true %}
 {{ item.path }}
 {% endif %}
 {% endfor %}
+{% endif %}
 )
 
 arrayRotatedPaths=(
+{% if customPaths.results is defined %}
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
 {{ item.item.wildcard }}
 {% endif %}
 {% endfor %}
+{% endif %}
+{% if IHS.matched is defined %}
+{% if IHS.matched > 0 %}
+/log/apps/httpserver85/*/*/error_log20*
+/log/apps/httpserver85/*/*/access_log20*
+{% endif %}
+{% endif %}
+{% if WAS.matched is defined %}
 {% if WAS.matched > 0 %}
 /log/apps/websphere85/appServer/*/SystemError_*00.00*.log
 /log/apps/websphere85/appServer/*/SystemOut_*00.00*.log
 /log/apps/websphere85/appServer/*/native_stderr.log20*
 /log/apps/websphere85/appServer/*/native_stdout.log20*
 {% endif %}
-{% if IHS.matched > 0 %}
-/log/apps/httpserver85/*/*/error_log20*
-/log/apps/httpserver85/*/*/access_log20*
 {% endif %}
 )
-
-#echo ${arrayPaths[@]}
-
-echo -e "\\n********** logTruncate  **********"
-echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
-
+echo -e "--> Inicio operaciones de liberacion de espacio"
 for i in "${arrayPaths[@]}" 
 do    
 #   fileSize=$(ls -la $i | awk '{ print $5 }')
@@ -54,24 +64,22 @@ do
     auxPathSize=$(df $auxPath --output=avail | tail -n +2)
     fileName=$(basename ${i})
     directoryName=$(dirname "${i}")
-    echo $fileSize
     echo -e "-> Truncando $i, tamaño $fileSize Bytes. Este proceso puede llevar unos minutos..."
 #    cp -p "$i" "$auxPath" 
 #    echo "" > "$i" 
  
-    echo -e "--> Operaciones adicionales. Este proceso puede llevar unos minutos..."
+    echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
 #    gzip -9 "$auxPath$fileName" 
 
 #    mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
     truncated=$((truncated+1))
   else
-    echo "-> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
+    echo "-> Skipping $i, tamaño archivo $fileSize B < $minLogSize B"
   fi
 done
-echo -e "\n"
 echo -e "--> Operacion de truncado finalizada correctamente en $truncated archivos"
-echo -e "Intentando liberar mas espacio..."
 echo -e "\n"
+echo -e "--> Intentando liberar mas espacio..."
 
 for i in "${arrayRotatedPaths[@]}"
 do
@@ -81,6 +89,12 @@ do
     compressed=$((compressed+1)) 
   fi 
 done
+echo -e "--> Operacion de compresión finalizada correctamente en $compressed archivos/rutas"
 echo -e "\n"
-echo -e "--> Se ha liberado espacio correctamente comprimiendo $compressed archivos"
+echo -e "--> Operaciones de liberacion de espacio finalizadas"
+{% else%}
+echo -e "\n"
+echo -e "--> No se han realizado acciones porque no se han configurado logs para truncar ni comprimir"
+echo -e "--> Avisar a la TS responsable del sistema al que pertenece la alerta"
+{% endif %}
 

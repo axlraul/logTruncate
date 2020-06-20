@@ -3,6 +3,7 @@
   stat:
     path: "{{ item.path }}"
   with_items: "{{ logs }}"
+  when: logs is defined
   register: customPaths
 
 - name: Find IHS log paths with regexp's
@@ -34,4 +35,5 @@
     group: sys
     owner: root
     mode: 0655
+  when: customPaths is defined or IHS is defined or WAS is defined
 ...
