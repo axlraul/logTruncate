@@ -1,2 +1,2 @@
 # logTruncate
-Script build with ansible that allow to free space at FS 
+Shell script build and installed with ansible that allow to free space at FS 
