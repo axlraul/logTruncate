@@ -35,22 +35,3 @@
     owner: root
     mode: 0655
 ...
-
-
-
-
-
-
-
-
-# tasks file for logTruncate
-#- name: Find path with regexp's
-#  find:
-#    path: /log/apps
-#    pattern: 'SystemError.log'
-#    recurse: yes
-#  register: output
-
-#- debug: var=item.path
-#  with_items: "{{ output.files }}"
-
