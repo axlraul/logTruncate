@@ -6,4 +6,13 @@
 {{ item.item.path }}{{ item.item.wildcard }}
 {% endif %}
 {% endfor %}
-
+{% for item in IHS.files %}
+{% if item.isreg == true %}
+{{ item.path }}
+{% endif %}
+{% endfor %}
+{% for item in WAS.files %}
+{% if item.isreg == true %}
+{{ item.path }}
+{% endif %}
+{% endfor %}
