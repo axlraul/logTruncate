@@ -59,17 +59,17 @@ do
 #    cp -p "$i" "$auxPath" 
 #    echo "" > "$i" 
  
-    echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
+    echo -e "--> Operaciones adicionales. Este proceso puede llevar unos minutos..."
 #    gzip -9 "$auxPath$fileName" 
 
 #    mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
     truncated=$((truncated+1))
   else
-    echo "--> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
+    echo "-> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
   fi
 done
 echo -e "\n"
-echo -e "-> Operacion de truncado finalizada correctamente en $truncated archivos"
+echo -e "--> Operacion de truncado finalizada correctamente en $truncated archivos"
 echo -e "Intentando liberar mas espacio..."
 echo -e "\n"
 
@@ -82,5 +82,5 @@ do
   fi 
 done
 echo -e "\n"
-echo -e "-> Se ha liberado espacio correctamente comprimiendo $compressed archivos"
+echo -e "--> Se ha liberado espacio correctamente comprimiendo $compressed archivos"
 
