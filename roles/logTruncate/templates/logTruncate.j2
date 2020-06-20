@@ -1,10 +1,7 @@
-
+#!/bin/bash
 ## CONTENT ADMINISTRATED BY ANSIBLE PLAYBOOK. ALL CHANGES WILL BE LOST
 
-#!/bin/bash
-
 auxPath="{{ auxPath }}"
-echo $auxPath
 truncated=0
 compressed=0
 minLogSize={{ minLogSize }}
@@ -51,31 +48,25 @@ echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
 
 for i in "${arrayPaths[@]}" 
 do    
-   # do whatever on $i
 #   fileSize=$(ls -la $i | awk '{ print $5 }')
-   fileSize=$(stat --printf="%s" "$i")  
-   if [ $fileSize -gt $minLogSize ]; then
-     auxPathSize=$(df $auxPath --output=avail | tail -n +2)
-     fileName=$(basename ${i})
-     directoryName=$(dirname "${i}")
-#     echo $fileName
-#     echo $directoryName
-#     echo $i
-     echo $fileSize
-#     echo $auxPathSize
-     echo -e "-> Truncando $i, tamaño $fileSize Bytes. Este proceso puede llevar unos minutos..."
+  fileSize=$(stat --printf="%s" "$i")  
+  if [ $fileSize -gt $minLogSize ]; then
+    auxPathSize=$(df $auxPath --output=avail | tail -n +2)
+    fileName=$(basename ${i})
+    directoryName=$(dirname "${i}")
+    echo $fileSize
+    echo -e "-> Truncando $i, tamaño $fileSize Bytes. Este proceso puede llevar unos minutos..."
 #    cp -p "$i" "$auxPath" 
-##   echo "" > "$i" 
+#    echo "" > "$i" 
  
-#     echo -e "\n"
-     echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
+    echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
 #    gzip -9 "$auxPath$fileName" 
 
-#     mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
-     truncated=$((truncated+1))
-   else
-     echo "--> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
-   fi
+#    mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
+    truncated=$((truncated+1))
+  else
+    echo "--> Skipping $i, tamaño insuficiente para ser truncado $fileSize Bytes < $minLogSize Bytes"
+  fi
 done
 echo -e "\n"
 echo -e "-> Operacion de truncado finalizada correctamente en $truncated archivos"
@@ -86,11 +77,10 @@ for i in "${arrayRotatedPaths[@]}"
 do
   if [ "${i##*.}" != "gz" ]; then
     echo -e "-> Comprimiendo $i, este proceso puede llevar unos minutos..."
-#     gzip -9 $i -d
+#    gzip -9 $i -d
     compressed=$((compressed+1)) 
   fi 
 done
 echo -e "\n"
 echo -e "-> Se ha liberado espacio correctamente comprimiendo $compressed archivos"
-
 
