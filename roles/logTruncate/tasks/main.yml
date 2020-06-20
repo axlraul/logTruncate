@@ -21,11 +21,11 @@
   when: WAS == "true"
   register: WAS
 
-- debug: var=item
-  with_items: "{{ IHS.files }}"
+#- debug: var=item
+#  with_items: "{{ IHS.files }}"
 
-- debug: var=item
-  with_items: "{{ IHS.matched }}"
+#- debug: var=item
+#  with_items: "{{ IHS.matched }}"
 
 - name: Installing logTruncate at {{ installPath }}
   template:
