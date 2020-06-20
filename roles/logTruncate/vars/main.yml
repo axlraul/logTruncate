@@ -1,0 +1,25 @@
+---
+# vars file for logTruncate
+
+ installPath: '/tmp/logTruncate.sh'
+
+ IHS: 'yes'
+ WAS: 'yes'
+
+# logrotateOptions:
+#   - option: 'rotate 90'
+#   - option: 'compress'
+#   - option: 'daily'
+#   - option: 'dateext'
+#   - option: 'dateformat -%Y-%m-%d.log'
+
+ logs:
+   - path:      /var/log/boot.log
+     wildcard:  /var/log/boot.log-????????
+
+   - path:      /var/log/dmesg
+     wildcard:  /var/log/dmesg-????????
+
+   - path:      /var/log/cron
+     wildcard:  /var/log/cron-????????
+

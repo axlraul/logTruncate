@@ -1,0 +1,6 @@
+[all]
+192.168.0.131
+#[all:vars]
+#ansible_connection=ssh
+#ansible_user=username
+#ansible_ssh_pass=password

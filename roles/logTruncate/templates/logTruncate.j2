@@ -1,0 +1,9 @@
+
+## CONTENT ADMINISTRATED BY ANSIBLE PLAYBOOK. ALL CHANGES WILL BE LOST
+
+{% for item in customPaths.results %}
+{% if item.stat.exists == true %}
+{{ item.item.path }}{{ item.item.wildcard }}
+{% endif %}
+{% endfor %}
+

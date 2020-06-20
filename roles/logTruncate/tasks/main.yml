@@ -1,0 +1,33 @@
+---
+- name: check if log file exists at filesystem
+  stat:
+    path: "{{ item.path }}"
+  with_items: "{{ logs }}"
+  register: customPaths
+- name: Installing logTruncate at {{ installPath }}
+  template:
+    src: templates/logTruncate.j2
+    dest: '{{ installPath }}'
+    group: sys
+    owner: root
+    mode: 0644
+...
+
+
+
+
+
+
+
+
+# tasks file for logTruncate
+#- name: Find path with regexp's
+#  find:
+#    path: /log/apps
+#    pattern: 'SystemError.log'
+#    recurse: yes
+#  register: output
+
+#- debug: var=item.path
+#  with_items: "{{ output.files }}"
+
