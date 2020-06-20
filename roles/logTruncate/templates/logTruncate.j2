@@ -3,6 +3,10 @@
 
 #!/bin/bash
 
+auxPath="{{ auxPath }}"
+echo $auxPath
+truncated=0
+#compressed=0
 arrayPaths=(
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
@@ -21,6 +25,57 @@ arrayPaths=(
 {% endfor %}
 )
 
-echo ${arrayPaths[@]}
+arrayRotatedPaths=(
+{% for item in customPaths.results %}
+{% if item.stat.exists == true %}
+{{ item.item.wildcard }}
+{% endif %}
+{% endfor %}
+/log/apps/websphere85/appServer/*/SystemError_*00.00*.log
+/log/apps/websphere85/appServer/*/SystemOut_*00.00*.log
+/log/apps/websphere85/appServer/*/native_stderr.log20*
+/log/apps/websphere85/appServer/*/native_stdout.log20*
+)
+
+#echo ${arrayPaths[@]}
+
+echo -e "\\n********** logTruncate  **********"
+echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
+
+for i in "${arrayPaths[@]}" 
+do    
+   # do whatever on $i
+   fileSize=$(ls -la $i | awk '{ print $5 }')
+   auxPathSize=$(df $auxPath --output=avail | tail -n +2)
+   fileName=$(basename ${i})
+   directoryName=$(dirname "${i}")
+#   echo $fileName
+#   echo $directoryName
+#   echo $i
+#   echo $fileSize
+#   echo $auxPathSize
+   echo -e "-> Truncando $i, este proceso puede llevar unos minutos..."
+#  cp -p "$i" "$auxPath" 
+## echo "" > "$i" 
+ 
+#   echo -e "\n"
+   echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
+#  gzip -9 "$auxPath$fileName" 
+
+#   mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
+truncated=$((truncated+1))
+done
+echo -e "\n"
+echo -e "Operacion de truncado finalizada correctamente en $truncated archivos"
+echo -e "Intentando liberar mas espacio..."
+echo -e "\n"
+
+for i in "${arrayPaths[@]}"
+do
+  echo -e "-> Comprimiendo  $i, este proceso puede llevar unos minutos..."
+# gzip -9 $i
+done
+echo -e "\n"
+echo -e "-> Se ha liberado espacio correctamente"
 
 

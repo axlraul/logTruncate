@@ -2,7 +2,7 @@
 # vars file for logTruncate
 
  installPath: '/tmp/logTruncate.sh'
-
+ auxPath: '/tmp'
  IHS: 'yes'
  WAS: 'yes'
 
@@ -22,4 +22,6 @@
 
    - path:      /var/log/cron
      wildcard:  /var/log/cron-????????
-
+   
+   - path:      /fakepath
+     wildcard:  /fakepathwildcard
