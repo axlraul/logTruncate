@@ -6,6 +6,16 @@
   when: logs is defined
   register: customPaths
 
+- name: Setting RHEL6 vars (if needed)
+  set_fact:
+    auxPathSize: df $auxPath | tail -1 | awk '{ print $3 }'
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'
+
+- name: Setting RHEL7 vars (if needed)
+  set_fact:
+    auxPathSize: df $auxPath --output=avail | tail -n +2
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+
 - name: Find IHS log paths with regexp's
   find:
     path: /logs/apps
