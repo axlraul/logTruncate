@@ -8,7 +8,7 @@
 
 - name: Find IHS log paths with regexp's
   find:
-    path: /log/apps
+    path: /logs/apps
     patterns: 'error_log,access_log'
     recurse: yes
   when: IHS == "true"
@@ -16,8 +16,8 @@
 
 - name: Find WAS log paths with regexp's
   find:
-    path: /log/apps
-    pattern: 'SystemOut.log,SystemErr.log'
+    path: /logs/apps
+    pattern: 'SystemOut.log,SystemErr.log,native_stdout.log,native_stderr.log'
     recurse: yes
   when: WAS == "true"
   register: WAS
