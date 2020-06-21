@@ -49,10 +49,10 @@ arrayRotatedPaths=(
 {% endif %}
 {% if WAS.matched is defined %}
 {% if WAS.matched > 0 %}
-/log/apps/websphere85/appServer/*/SystemError_*00.00*.log
-/log/apps/websphere85/appServer/*/SystemOut_*00.00*.log
-/log/apps/websphere85/appServer/*/native_stderr.log20*
-/log/apps/websphere85/appServer/*/native_stdout.log20*
+/logs/apps/websphere85/appServer/*/System*_*00.00*.log
+/logs/apps/websphere85/appServer/*/native_std*.log20*
+/logs/apps/websphere85/dmgr/dmgr/System*_20*
+/logs/apps/websphere85/dmgr/dmgr/native_std*.log20*
 {% endif %}
 {% endif %}
 )
@@ -61,8 +61,8 @@ for i in "${arrayPaths[@]}"
 do    
 #   fileSize=$(ls -la $i | awk '{ print $5 }')
   fileSize=$(stat --printf="%s" "$i")  
-  if [ $fileSize -gt $minLogSize ]; then
-    auxPathSize=$(df $auxPath --output=avail | tail -n +2)
+  auxPathSize=$({{ auxPathSize }})
+  if [ $fileSize -gt $minLogSize ] && [ $auxPathSize -gt $fileSize ] ; then
     fileName=$(basename ${i})
     directoryName=$(dirname "${i}")
     echo -e "-> Truncando $i, tamaño $fileSize Bytes. Este proceso puede llevar unos minutos..."

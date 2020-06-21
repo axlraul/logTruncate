@@ -1,5 +1,5 @@
 - hosts: all
-  gather_facts: no
+  gather_facts: yes
   vars:
    installPath: '/tmp/logTruncate.sh' #absolute path where script will be placed
    auxPath: '/tmp'          #Auxiliar path where logs will be moved to be compressed

@@ -6,9 +6,19 @@
   when: logs is defined
   register: customPaths
 
+- name: Setting RHEL6 vars (if needed)
+  set_fact:
+    auxPathSize: df $auxPath | tail -1 | awk '{ print $3 }'
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'
+
+- name: Setting RHEL7 vars (if needed)
+  set_fact:
+    auxPathSize: df $auxPath --output=avail | tail -n +2
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+
 - name: Find IHS log paths with regexp's
   find:
-    path: /log/apps
+    path: /logs/apps
     patterns: 'error_log,access_log'
     recurse: yes
   when: IHS == "true"
@@ -16,8 +26,8 @@
 
 - name: Find WAS log paths with regexp's
   find:
-    path: /log/apps
-    pattern: 'SystemOut.log,SystemErr.log'
+    path: /logs/apps
+    pattern: 'SystemOut.log,SystemErr.log,native_stdout.log,native_stderr.log'
     recurse: yes
   when: WAS == "true"
   register: WAS
