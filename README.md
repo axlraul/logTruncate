@@ -40,7 +40,7 @@ Uso de variables:
 | logs.path | |x| '/ruta/a/log' |
 | logs.wildcard| |x| '/ruta/a/????/log*' |
 
-Nota: No está contemplado el uso de la variable 'logs.wildcard' sin el uso de 'logs.path'.
-Por defecto, los permisos del script es:  
- rw-r-xr-x root:sys 
+Notas:
+No está contemplado el uso de la variable 'logs.wildcard' sin el uso de 'logs.path'  
+Por defecto, los permisos del script es:   rw-r-xr-x root:sys 
 
