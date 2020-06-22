@@ -8,13 +8,13 @@ La finalidad de este playbook es poder ansibilizar la instalación en diversos n
 
 * El funcionamiento del script instalado es el siguiente:
 
- -Eliminación de archivos anteriores a N dias definidos en 'historyDays'
+ -Eliminación de archivos anteriores a N dias definidos en 'historyDays'  
 Si se define este valor, se indica el número de dias de retencion de archivos comprimidos por el script previamente en la tarea "Truncado" comentada a continuación. Si este número de días de antiguedad se supera por un log truncado en el momento de ejecución del script, este se elimina.
  
- -Truncado
+ -Truncado  
 Únicamente se truncarán los logs objetivos del script si existe espacio disponible en el directorio auxiliar 'auxPath'. En concreto, se copia el log objetivo 'logs.path' al directorio auxiliar, se comprime, se concatena la fecha del dia actual al nombre del archivo, se vacía el log objetivo y se devuelve al directorio inicial. 
   
- -Compresión
+ -Compresión  
 Mediante la variable 'logs.wildcard' se define el log o conjunto de logs mediante wildcard en el que se ejecutará la operación de comprimir sin rotar.
  
 Los logs rotados pertenecerán a diversos tipos de aplicaciones:
