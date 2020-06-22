@@ -59,7 +59,10 @@ arrayRotatedPaths=(
 echo -e "--> Inicio operaciones de liberacion de espacio"
 for i in "${arrayPaths[@]}" 
 do    
-#   fileSize=$(ls -la $i | awk '{ print $5 }')
+{% if historyDays is defined and historyDays != 'false' %}
+#  find $i*_logTruncate_*.gz -mtime +{{ historyDays }} -exec rm -f {} \;  -print 2>/dev/null
+{% endif %}
+###  fileSize=$(ls -la $i | awk '{ print $5 }') # Puede que no funcione segun version RHEL
   fileSize=$(stat --printf="%s" "$i")  
   auxPathSize=$({{ auxPathSize }})
   if [ $fileSize -gt $minLogSize ] && [ $auxPathSize -gt $fileSize ] ; then
@@ -72,7 +75,7 @@ do
     echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
 #    gzip -9 "$auxPath$fileName" 
 
-#    mv "$auxPath$fileName.gz" "$directoryName${fileName}_$(date +%d_%m_%Y).gz" 
+#    mv "$auxPath$fileName.gz" "$directoryName${fileName}_logTruncate_$(date +%d_%m_%Y).gz" 
     truncated=$((truncated+1))
   else
     echo "-> Skipping $i, tamaño archivo $fileSize B < $minLogSize B"

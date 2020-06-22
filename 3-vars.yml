@@ -3,12 +3,13 @@
   vars:
    installPath: '/tmp/logTruncate.sh' #absolute path where script will be placed
    auxPath: '/tmp'          #Auxiliar path where logs will be moved to be compressed
-   
-   #Apps managed by GII
-   IHS: 'true'              #Accepted values: "true/false"
-   WAS: 'true'              #Accepted values: "true/false"
+   historyDays: '90'        #Accepted values: "false/[0,1,..]" (days value)
    minLogSize: '1'          #Accepted values: [0,1,..] (value in Bytes)
 
+  #Apps managed by GII
+   IHS: 'true'              #Accepted values: "true/false"
+   WAS: 'true'              #Accepted values: "true/false"
+   
    #Custom log paths
    logs:                    
      - path:      /var/log/boot.log
