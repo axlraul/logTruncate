@@ -87,6 +87,9 @@ echo -e "--> Intentando liberar mas espacio..."
 
 for i in "${arrayRotatedPaths[@]}"
 do
+{% if historyDays is defined and historyDays != 'false' %}
+#  find $i -mtime +{{ historyDays }} -name "*logTruncate*.gz" -exec rm -f {} \;  -print 2>/dev/null
+{% endif %}
   if [ "${i##*.}" != "gz" ]; then
     echo -e "-> Comprimiendo $i, este proceso puede llevar unos minutos..."
 #    gzip -9 $i -d
