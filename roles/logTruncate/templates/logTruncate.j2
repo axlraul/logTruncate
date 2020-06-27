@@ -3,60 +3,126 @@
 
 echo -e "\\n********** logTruncate  **********"
 echo -e "** Start: $(date +%d/%m/%Y\(%H:%M:%S\)) **\\n"
+sleep 1
 {% if customPaths.results is defined or IHS.files is defined or WAS.files is defined %}
 auxPath="{{ auxPath }}"
 truncated=0
 compressed=0
 minLogSize={{ minLogSize }}
 
-arrayPaths=(
-{% if customPaths.results is defined %}
-{% for item in customPaths.results %}
-{% if item.stat.exists == true %}
-{{ item.item.path }}
-{% endif %}
-{% endfor %}
-{% endif %}
 {% if IHS.files is defined%}
+arrayPathsIHS=(
 {% for item in IHS.files %}
 {% if item.isreg == true %}
 {{ item.path }}
 {% endif %}
 {% endfor %}
+)
+
+fsIHS=$(stat -c %m -- "${arrayPathsIHS[1]}")
+arrayFS+=("$fsIHS")
 {% endif %}
-{% if WAS.files is defined%}
+
+{% if WAS.files is defined %}
+arrayPathsWAS=(
 {% for item in WAS.files %}
 {% if item.isreg == true %}
 {{ item.path }}
 {% endif %}
 {% endfor %}
-{% endif %}
 )
 
-arrayRotatedPaths=(
+fsWAS=$(stat -c %m -- "${arrayPathsWAS[1]}")
+arrayFS+=("$fsWAS")
+{% endif %}
+
 {% if customPaths.results is defined %}
+arrayPathsAPPNAME=(
+{% for item in customPaths.results %}
+{% if item.stat.exists == true %}
+{{ item.item.path }}
+{% endif %}
+{% endfor %}
+)
+
+fsAPPNAME=$(stat -c %m -- "${arrayPathsAPPNAME[1]}")
+arrayFS+=("$fsAPPNAME")
+{% endif %}
+
+
+{% if IHS.matched is defined and IHS.matched > 0 %}
+arrayRotatedPathsIHS=(
+/log/apps/httpserver85/*/*/error_log20*
+/log/apps/httpserver85/*/*/access_log20*
+)
+{% endif %}
+
+{% if WAS.matched is defined and WAS.matched > 0 %}
+arrayRotatedPathsWAS=(
+/logs/apps/websphere85/appServer/*/System*_*00.00*.log
+/logs/apps/websphere85/appServer/*/native_std*.log20*
+/logs/apps/websphere85/dmgr/dmgr/System*_20*
+/logs/apps/websphere85/dmgr/dmgr/native_std*.log20*
+)
+{% endif %}
+
+{% if customPaths.results is defined %}
+arrayRotatedPathsAPPNAME=(
 {% for item in customPaths.results %}
 {% if item.stat.exists == true %}
 {{ item.item.wildcard }}
 {% endif %}
 {% endfor %}
-{% endif %}
-{% if IHS.matched is defined %}
-{% if IHS.matched > 0 %}
-/log/apps/httpserver85/*/*/error_log20*
-/log/apps/httpserver85/*/*/access_log20*
-{% endif %}
-{% endif %}
-{% if WAS.matched is defined %}
-{% if WAS.matched > 0 %}
-/logs/apps/websphere85/appServer/*/System*_*00.00*.log
-/logs/apps/websphere85/appServer/*/native_std*.log20*
-/logs/apps/websphere85/dmgr/dmgr/System*_20*
-/logs/apps/websphere85/dmgr/dmgr/native_std*.log20*
-{% endif %}
-{% endif %}
 )
+{% endif %}
 echo -e "--> Inicio operaciones de liberacion de espacio"
+echo -e "\n->Selecciona el FS donde existe el problema de ocupación "
+sleep 1
+select value in "${arrayFS[@]}" "Quit"; do
+  case "$value" in
+    "Quit" )
+      echo -e "Opción QUIT seleccionada" && exit 1
+      ;;
+      *)
+      pathSelected=$(echo -e $value)
+      echo -e "\n"
+      break
+      ;;
+  esac
+done
+
+if [ -z "$pathSelected" ] ; then
+echo "No has seleccionado una opción válida [1,2,..]. Vuelve a intentarlo de nuevo." && exit 1
+fi
+
+echo -e " El FS elegido es $pathSelected\n"
+
+{% if IHS.matched is defined and IHS.matched > 0 %}
+
+if [ "$pathSelected" == "$fsIHS" ]; then
+
+  arrayPaths=("${arrayPathsIHS[@]}")
+  arrayRotatedPaths=("${arrayRotatedPathsIHS[@]}")
+fi
+{% endif %}
+
+{% if WAS.matched is defined and WAS.matched > 0 %}
+if [ "$pathSelected" == "$fsWAS" ]; then
+
+  arrayPaths=("${arrayPathsWAS[@]}")
+  arrayRotatedPaths=("${arrayRotatedPathsWAS[@]}")
+fi
+{% endif %}
+
+{% if customPaths.results is defined %}
+if [ "$pathSelected" == "$fsAPPNAME" ]; then
+
+  arrayPaths=("${arrayPathsAPPNAME[@]}")
+  arrayRotatedPaths=("${arrayRotatedPathsAPPNAME[@]}")
+fi
+{% endif %}
+#fi
+
 for i in "${arrayPaths[@]}" 
 do    
 {% if historyDays is defined and historyDays != 'false' %}
@@ -73,7 +139,7 @@ do
 #    echo "" > "$i" 
  
     echo -e "-> Operaciones adicionales. Este proceso puede llevar unos minutos..."
-#    gzip -9 "$auxPath$fileName" 
+#    gzip -9 "$auxPath$fileName" -v -q
 
 #    mv "$auxPath$fileName.gz" "$directoryName${fileName}_logTruncate_$(date +%d_%m_%Y).gz" 
     truncated=$((truncated+1))
@@ -88,11 +154,11 @@ echo -e "--> Intentando liberar mas espacio..."
 for i in "${arrayRotatedPaths[@]}"
 do
 {% if historyDays is defined and historyDays != 'false' %}
-#  find $i -mtime +{{ historyDays }} -name "*logTruncate*.gz" -exec rm -f {} \;  -print 2>/dev/null
+#  find $i -mtime +{{ historyDays }} -name "*_logTruncate_*.gz" -exec rm -f {} \;  -print 2>/dev/null
 {% endif %}
   if [ "${i##*.}" != "gz" ]; then
     echo -e "-> Comprimiendo $i, este proceso puede llevar unos minutos..."
-#    gzip -9 $i -d
+#    gzip -9 -v -q -S "_logTruncate_$(date +%d_%m_%Y).gz" $i 
     compressed=$((compressed+1)) 
   fi 
 done
